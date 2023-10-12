@@ -1,0 +1,79 @@
+from uib_inf100_graphics.event_app import run_app
+from snake_view import draw_board
+
+def app_started(app):
+    app.message = 'Press any key'
+    app.direction = "east"
+    app.debug_mode = False
+
+    app.board = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, -1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 2, 3, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    app.snake_size = 3
+    app.head_pos = (3, 4)
+
+def key_pressed(app, event):
+    if event.key == "Up":
+        app.message = "event.key == North"
+        app.direction = "North"
+    elif event.key == "Down":
+        app.message = "event.key == South"
+        app.direction = "South"
+    elif event.key == "Right":
+        app.message = "event.key == East"
+        app.direction = "East"
+    elif event.key == "Left":
+        app.message = "event.key == West"
+        app.direction = "West"
+    elif event.key == "d":
+        app.debug_mode = not app.debug_mode
+    elif event.key == "Space":
+        move_snake(app)
+
+def move_snake(app):
+    new_head_pos = get_next_head_position(app.head_pos, app.direction)
+    app.head_pos = new_head_pos  # Oppdaterer app.head_pos
+    row, col = app.head_pos  
+    app.board = subtract_one_from_all_positives(app.board) #funket ikke den flyttet ingen ting
+    app.board[row][col] = app.snake_size
+
+
+def get_next_head_position(head_pos, direction):
+    
+    row, col = head_pos
+
+    if direction == "North":
+        row -= 1
+    elif direction == "South":
+        row += 1
+    elif direction == "East":
+        col += 1
+    elif direction== "West":
+        col -= 1
+    head_pos = row, col
+    return head_pos
+
+def subtract_one_from_all_positives(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+
+    for row in range(rows):
+        for col in range(cols):
+            if grid[row][col] > 0:
+                grid[row][col] -= 1
+
+    return grid
+
+def redraw_all(app, canvas):
+    if app.debug_mode:
+        canvas.create_text(app.width / 2, 10, text=f"app.head_pos = {app.head_pos}, app.snake_size = {app.snake_size}, {app.message}")
+    draw_board(canvas, 25, 25, app.width - 25, app.height - 25, app.board, app.debug_mode)
+
+run_app(width=500, height=400, title="Snake")
+
